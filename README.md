@@ -2,8 +2,6 @@
 
 Painel de Business Intelligence sobre o mercado brasileiro de **internet fixa (banda larga)**, feito em Power BI no formato de projeto (`.pbip`) e publicado no Microsoft Fabric. Mostra o mercado de banda larga e onde ainda há população sem atendimento.
 
-Relatório publicado no Microsoft Fabric: [COLE_AQUI_O_LINK]
-
 ## Perguntas que o painel responde
 
 - Qual a fatia de mercado (market share) da Claro no Brasil, em cada estado e, para RJ e SP, em cada cidade?
@@ -48,7 +46,6 @@ Market share da Claro, total do mercado, penetração (conexões por 100 morador
 Projeto_Claro.pbip              Arquivo de entrada do projeto
 Projeto_Claro.SemanticModel/    Modelo semântico (tabelas, relações, medidas) em texto
 Projeto_Claro.Report/           Páginas e visuais do relatório em texto
-assets/                         Imagens usadas na documentação
 ```
 
 Como os arquivos são texto, o Git mostra exatamente o que mudou em cada medida DAX ou visual a cada commit.
@@ -60,4 +57,4 @@ Power BI (`.pbip`), Microsoft Fabric, DAX, Power Query (M), Git e GitHub.
 ## Autor
 
 Cleyton Luis Soares de Carvalho. Engenheiro de Produção, analista de BI e dados.
-LinkedIn: [COLE_AQUI] · GitHub: [engcley](https://github.com/engcley)
+GitHub: https://github.com/engcley
