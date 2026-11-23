@@ -1,0 +1,43 @@
+table LocalMapa
+	lineageTag: 4ce56345-ff23-4e7d-a30b-5e10d57f490f
+
+	column UF
+		lineageTag: 5f87b5e5-f071-472d-b714-62464fa52fda
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [UF]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cod_IBGE
+		formatString: 0
+		lineageTag: a1f66229-e441-4171-b6ac-273dc994741d
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Cod_IBGE]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Local
+		lineageTag: df609a48-819b-4964-a1d8-71c5cbe1d55f
+		dataCategory: Place
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Local]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Tipo
+		lineageTag: 2cdd4bbf-6685-42c6-8773-a32d23dbc163
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Tipo]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition LocalMapa = calculated
+		mode: import
+		source = UNION(SELECTCOLUMNS(SUMMARIZE(IBGE_API, IBGE_API[UF], IBGE_API[Estado_Mapa]), "UF", IBGE_API[UF], "Cod_IBGE", 0, "Local", IBGE_API[Estado_Mapa] & ", Brasil", "Tipo", "Estado"), SELECTCOLUMNS(FILTER(IBGE_API, IBGE_API[UF] IN {"RJ", "SP"}), "UF", IBGE_API[UF], "Cod_IBGE", IBGE_API[Cod_IBGE], "Local", IBGE_API[Localizacao_Mapa], "Tipo", "Cidade"))
+
+	annotation PBI_Id = a9181aec63bf471e8ca56056c2865080
+

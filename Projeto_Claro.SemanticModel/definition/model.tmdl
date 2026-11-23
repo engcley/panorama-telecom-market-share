@@ -1,0 +1,25 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: pt-BR
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["IBGE_API","Acessos_Banda_Larga_Fixa_2026"]
+
+annotation PBI_ProTooling = ["DevMode","MCP-PBIModeling","WebModelingEdit","DaxQueryView_Desktop","TMDLView_Desktop"]
+
+annotation __LastRPTime = 134398902883875769
+
+ref table IBGE_API
+ref table Acessos_Banda_Larga_Fixa_2026
+ref table dCalendario
+ref table _Medidas
+ref table LocalMapa
+
+ref cultureInfo pt-BR
+

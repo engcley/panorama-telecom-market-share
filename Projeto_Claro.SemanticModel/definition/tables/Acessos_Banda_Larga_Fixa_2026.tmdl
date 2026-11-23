@@ -1,0 +1,162 @@
+table Acessos_Banda_Larga_Fixa_2026
+	lineageTag: a8d37dae-0fdf-48ae-b28c-9d95bfebef7a
+
+	column Ano
+		dataType: int64
+		formatString: 0
+		lineageTag: 2dda9562-d0a7-4d6a-bb61-e0962338753f
+		summarizeBy: sum
+		sourceColumn: Ano
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mês
+		dataType: int64
+		formatString: 0
+		lineageTag: 4bfdf70f-0fbb-47c8-b9e1-9f9ac6265b07
+		summarizeBy: sum
+		sourceColumn: Mês
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Grupo Econômico'
+		dataType: string
+		lineageTag: 32652ff9-735e-4e7c-a325-cf6710c802a1
+		summarizeBy: none
+		sourceColumn: Grupo Econômico
+
+		annotation SummarizationSetBy = Automatic
+
+	column Empresa
+		dataType: string
+		lineageTag: 45110457-8c9f-413d-b8f0-5855386c3c87
+		summarizeBy: none
+		sourceColumn: Empresa
+
+		annotation SummarizationSetBy = Automatic
+
+	column CNPJ
+		dataType: int64
+		formatString: 0
+		lineageTag: 0451a419-8131-4900-927a-07e8a36dbe01
+		summarizeBy: sum
+		sourceColumn: CNPJ
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Porte da Prestadora'
+		dataType: string
+		lineageTag: 497f880b-172a-4324-98ee-e0bb0c1f4bfe
+		summarizeBy: none
+		sourceColumn: Porte da Prestadora
+
+		annotation SummarizationSetBy = Automatic
+
+	column UF
+		dataType: string
+		lineageTag: 8cf6c5b6-2e58-41ec-a90a-cf9fddcaa59e
+		summarizeBy: none
+		sourceColumn: UF
+
+		annotation SummarizationSetBy = Automatic
+
+	column Município
+		dataType: string
+		lineageTag: 538362ba-ea53-4648-9251-778805936f2a
+		summarizeBy: none
+		sourceColumn: Município
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Código IBGE Município'
+		dataType: int64
+		formatString: 0
+		lineageTag: 42a3b91f-d60c-4d38-9154-b12ae41410a1
+		summarizeBy: sum
+		sourceColumn: Código IBGE Município
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Faixa de Velocidade'
+		dataType: string
+		lineageTag: d1f13023-ca7a-48d7-90e1-e4ac5e8a68f2
+		summarizeBy: none
+		sourceColumn: Faixa de Velocidade
+
+		annotation SummarizationSetBy = Automatic
+
+	column Velocidade
+		dataType: double
+		lineageTag: 0d19d0ff-7d3b-4ec2-8a1f-a48ad2f274d0
+		summarizeBy: sum
+		sourceColumn: Velocidade
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Tecnologia
+		dataType: string
+		lineageTag: afb150b7-9d6b-4292-a32b-85c5336f7b24
+		summarizeBy: none
+		sourceColumn: Tecnologia
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Meio de Acesso'
+		dataType: string
+		lineageTag: 8b6fd54f-0b44-4a98-a537-27b25480b028
+		summarizeBy: none
+		sourceColumn: Meio de Acesso
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tipo de Pessoa'
+		dataType: string
+		lineageTag: e74aef80-daa2-4430-bd9c-ad9905906d09
+		summarizeBy: none
+		sourceColumn: Tipo de Pessoa
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tipo de Produto'
+		dataType: string
+		lineageTag: cea2c4a4-3a10-4639-b992-d73e559f4424
+		summarizeBy: none
+		sourceColumn: Tipo de Produto
+
+		annotation SummarizationSetBy = Automatic
+
+	column Acessos
+		dataType: int64
+		formatString: 0
+		lineageTag: fd922055-a05b-4a21-b2d8-07a4b372ef6a
+		summarizeBy: sum
+		sourceColumn: Acessos
+
+		annotation SummarizationSetBy = Automatic
+
+	column Data = DATE(Acessos_Banda_Larga_Fixa_2026[Ano], Acessos_Banda_Larga_Fixa_2026[Mês], 1)
+		dataType: dateTime
+		formatString: dd/mm/yyyy
+		lineageTag: feb9e977-07bc-4a41-8817-0d3bb5c3380c
+		summarizeBy: none
+
+	column Operadora = SWITCH(Acessos_Banda_Larga_Fixa_2026[Grupo Econômico], "TELECOM AMERICAS", "Claro", "TELEFONICA", "Vivo", "TELECOM ITALIA", "TIM", "OI", "Oi", "OUTROS", "Pequenos provedores", Acessos_Banda_Larga_Fixa_2026[Grupo Econômico])
+		lineageTag: 5c781026-af8c-4779-b50e-8ee46aeb243c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Acessos_Banda_Larga_Fixa_2026 = m
+		mode: import
+		source =
+				let
+				  Origem = Csv.Document(File.Contents("C:\Users\engcl\Downloads\acessos_banda_larga_fixa\Acessos_Banda_Larga_Fixa_2026.csv"), [Delimiter = ";", Columns = 16, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
+				  #"Cabeçalhos promovidos" = Table.PromoteHeaders(Origem, [PromoteAllScalars = true]),
+				  #"Tipo de coluna alterado" = Table.TransformColumnTypes(#"Cabeçalhos promovidos", {{"Ano", Int64.Type}, {"Mês", Int64.Type}, {"Grupo Econômico", type text}, {"Empresa", type text}, {"CNPJ", Int64.Type}, {"Porte da Prestadora", type text}, {"UF", type text}, {"Município", type text}, {"Código IBGE Município", Int64.Type}, {"Faixa de Velocidade", type text}, {"Velocidade", type number}, {"Tecnologia", type text}, {"Meio de Acesso", type text}, {"Tipo de Pessoa", type text}, {"Tipo de Produto", type text}, {"Acessos", Int64.Type}})
+				in
+				  #"Tipo de coluna alterado"
+
+	annotation PBI_ResultType = Table
+

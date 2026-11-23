@@ -1,0 +1,8 @@
+relationship Fato_IBGE
+	fromColumn: Acessos_Banda_Larga_Fixa_2026.'Código IBGE Município'
+	toColumn: IBGE_API.Cod_IBGE
+
+relationship Fato_Calendario
+	fromColumn: Acessos_Banda_Larga_Fixa_2026.Data
+	toColumn: dCalendario.Data
+

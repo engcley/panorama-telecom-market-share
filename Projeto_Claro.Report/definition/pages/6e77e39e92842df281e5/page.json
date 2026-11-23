@@ -1,0 +1,14 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "6e77e39e92842df281e5",
+  "displayName": "Participação_Claro",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "pageBinding": {
+    "name": "f0bb2c9ae85947c460f7",
+    "type": "Default",
+    "parameters": [],
+    "acceptsFilterContext": "None"
+  }
+}

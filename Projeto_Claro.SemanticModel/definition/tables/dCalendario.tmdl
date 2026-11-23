@@ -1,0 +1,52 @@
+table dCalendario
+	lineageTag: 5127fd70-45f6-4c1f-a94f-0f94c7ef5a47
+	dataCategory: Time
+
+	column Data
+		isUnique
+		formatString: dd/mm/yyyy
+		lineageTag: 9013f7de-6a1f-4e78-b997-d13a92b3a955
+		sourceColumn: [Date]
+
+	column Ano
+		lineageTag: 3c747626-aa03-414c-86ff-e0be5ee44adc
+		isNameInferred
+		sourceColumn: [Ano]
+
+	column 'Mês Número'
+		lineageTag: af377ac7-a373-4573-ae98-ffb02aecf479
+		isNameInferred
+		sourceColumn: [Mês Número]
+
+	column 'Mês Abrev'
+		lineageTag: c24ffb9f-85c9-4108-a416-835a58382d3b
+		isNameInferred
+		sourceColumn: [Mês Abrev]
+		sortByColumn: 'Mês Número'
+
+	column Ano-Mês
+		lineageTag: 9bb1a7b7-04c5-44db-9938-0602e0c4be7d
+		isNameInferred
+		sourceColumn: [Ano-Mês]
+		sortByColumn: Data
+
+	column 'Mês Nome' = SWITCH(dCalendario[Mês Número], 1, "Janeiro", 2, "Fevereiro", 3, "Março", 4, "Abril", 5, "Maio", 6, "Junho", 7, "Julho", 8, "Agosto", 9, "Setembro", 10, "Outubro", 11, "Novembro", 12, "Dezembro")
+		lineageTag: 8e82c712-c1c3-4163-a30a-cc5f73822fd9
+		summarizeBy: none
+		sortByColumn: 'Mês Número'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dCalendario = calculated
+		mode: import
+		source =
+				VAR _Cal = CALENDAR(MIN(Acessos_Banda_Larga_Fixa_2026[Data]), EOMONTH(MAX(Acessos_Banda_Larga_Fixa_2026[Data]), 0))
+				RETURN
+				ADDCOLUMNS(
+				    _Cal,
+				    "Ano", YEAR([Date]),
+				    "Mês Número", MONTH([Date]),
+				    "Mês Abrev", SWITCH(MONTH([Date]), 1, "Jan", 2, "Fev", 3, "Mar", 4, "Abr", 5, "Mai", 6, "Jun", 7, "Jul", 8, "Ago", 9, "Set", 10, "Out", 11, "Nov", 12, "Dez"),
+				    "Ano-Mês", FORMAT([Date], "yyyy-MM")
+				)
+

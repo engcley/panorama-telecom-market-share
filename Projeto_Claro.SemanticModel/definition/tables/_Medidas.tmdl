@@ -1,0 +1,144 @@
+table _Medidas
+	lineageTag: a076bf69-43f9-4b66-a7be-e020f591944d
+
+	/// Acessos do último mês do contexto de filtro (foto do estoque, sem somar meses). Ignora o filtro de Grupo Econômico ao escolher o mês, para todas as operadoras usarem a mesma data.
+	measure 'Total Acessos' = VAR _ult = CALCULATE(MAX(Acessos_Banda_Larga_Fixa_2026[Data]), REMOVEFILTERS(Acessos_Banda_Larga_Fixa_2026[Grupo Econômico], Acessos_Banda_Larga_Fixa_2026[Operadora])) RETURN CALCULATE(SUM(Acessos_Banda_Larga_Fixa_2026[Acessos]), Acessos_Banda_Larga_Fixa_2026[Data] = _ult)
+		formatString: #,0
+		displayFolder: A - Base e Cartões
+		lineageTag: d91ca13e-f5a0-49b2-b4f1-d970d7508ebc
+
+	/// Total de acessos de todas as operadoras no contexto (denominador do market share).
+	measure 'Total Mercado' = CALCULATE([Total Acessos], REMOVEFILTERS(Acessos_Banda_Larga_Fixa_2026[Grupo Econômico], Acessos_Banda_Larga_Fixa_2026[Operadora]))
+		formatString: #,0
+		displayFolder: A - Base e Cartões
+		lineageTag: 58d487bd-0780-46a1-b6e8-378b365475bf
+
+	/// Acessos do Grupo Econômico TELECOM AMERICAS (Claro).
+	measure 'Acessos Claro' = CALCULATE([Total Acessos], Acessos_Banda_Larga_Fixa_2026[Grupo Econômico] = "TELECOM AMERICAS")
+		formatString: #,0
+		displayFolder: A - Base e Cartões
+		lineageTag: 0e284bc6-55cb-4bad-85f8-3577cfe0fa6a
+
+	/// Participação da operadora do contexto (use Grupo Econômico na legenda).
+	measure 'Market Share' = DIVIDE([Total Acessos], [Total Mercado], 0)
+		formatString: 0.0%
+		displayFolder: A - Base e Cartões
+		lineageTag: c3f3017c-a979-4019-b9d3-78295ae65c7d
+
+	measure 'Market Share Claro' = DIVIDE([Acessos Claro], [Total Mercado], 0)
+		formatString: 0.0%
+		displayFolder: A - Base e Cartões
+		lineageTag: 2d4569ff-e8aa-4dc7-8e6c-18539fd48f17
+
+	measure 'População Total' = SUM(IBGE_API[Populacao])
+		formatString: #,0
+		displayFolder: A - Base e Cartões
+		lineageTag: 527035a7-ded5-4b81-b8ab-92325f67af1e
+
+	/// Acessos / população do recorte (estado ou município selecionado).
+	measure Penetração = DIVIDE([Total Acessos], [População Total], 0)
+		formatString: 0.0%
+		displayFolder: A - Base e Cartões
+		lineageTag: 68a7106e-b4ff-401e-be23-df2f6943d38d
+
+	measure 'Penetração Claro' = DIVIDE([Acessos Claro], [População Total], 0)
+		formatString: 0.0%
+		displayFolder: A - Base e Cartões
+		lineageTag: e718664d-eaf6-4cc0-8439-8ef9e56f4cd9
+
+	/// Acessos da Claro no mês anterior ao último mês do contexto. Não usa PREVIOUSMONTH porque a base é mensal e o cartão pode estar sem filtro de período.
+	measure 'Acessos Claro Mês Anterior' = VAR _ant = EDATE(CALCULATE(MAX(Acessos_Banda_Larga_Fixa_2026[Data]), REMOVEFILTERS(Acessos_Banda_Larga_Fixa_2026[Grupo Econômico], Acessos_Banda_Larga_Fixa_2026[Operadora])), -1) RETURN CALCULATE([Acessos Claro], REMOVEFILTERS(dCalendario), Acessos_Banda_Larga_Fixa_2026[Data] = _ant)
+		formatString: #,0
+		displayFolder: B - Comparativo MoM
+		lineageTag: abda16bb-a7e8-4f33-9931-0af9a2ddf283
+
+	measure 'Var Acessos Claro MoM' = IF(ISBLANK([Acessos Claro Mês Anterior]), BLANK(), [Acessos Claro] - [Acessos Claro Mês Anterior])
+		formatString: +#,0,"k";-#,0,"k";0
+		displayFolder: B - Comparativo MoM
+		lineageTag: fa38c22a-32ce-48f3-b080-64a949bd6fc8
+
+	measure 'Market Share Claro Mês Anterior' = VAR _ant = EDATE(CALCULATE(MAX(Acessos_Banda_Larga_Fixa_2026[Data]), REMOVEFILTERS(Acessos_Banda_Larga_Fixa_2026[Grupo Econômico], Acessos_Banda_Larga_Fixa_2026[Operadora])), -1) RETURN CALCULATE([Market Share Claro], REMOVEFILTERS(dCalendario), Acessos_Banda_Larga_Fixa_2026[Data] = _ant)
+		formatString: 0.0%
+		displayFolder: B - Comparativo MoM
+		lineageTag: 0e7f4271-e924-416d-a084-7e01716b0d87
+
+	/// Diferença do market share vs mês anterior (em pontos percentuais, exibida com %).
+	measure 'Var Market Share Claro MoM' = IF(ISBLANK([Acessos Claro Mês Anterior]), BLANK(), [Market Share Claro] - [Market Share Claro Mês Anterior])
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: B - Comparativo MoM
+		lineageTag: 6e6c82ea-58ad-4054-833c-ef0f03ed0686
+
+	/// Maior market share entre os concorrentes no contexto. Exclui a Claro e o agrupamento OUTROS (provedores pequenos somados pela Anatel).
+	measure 'Market Share 2º Lugar' = MAXX(FILTER(VALUES(Acessos_Banda_Larga_Fixa_2026[Operadora]), NOT Acessos_Banda_Larga_Fixa_2026[Operadora] IN {"Claro", "Pequenos provedores"}), [Market Share])
+		formatString: 0.0%
+		displayFolder: C - Gap Líder
+		lineageTag: 1e354924-aba1-4311-b7b3-d7e6efc43945
+
+	/// Nome do principal concorrente, excluindo Claro e OUTROS (TELEFONICA vira VIVO, TELECOM ITALIA vira TIM).
+	measure 'Nome 2º Lugar' = VAR _max = [Market Share 2º Lugar] RETURN MAXX(FILTER(VALUES(Acessos_Banda_Larga_Fixa_2026[Operadora]), NOT Acessos_Banda_Larga_Fixa_2026[Operadora] IN {"Claro", "Pequenos provedores"} && [Market Share] = _max), Acessos_Banda_Larga_Fixa_2026[Operadora])
+		displayFolder: C - Gap Líder
+		lineageTag: 69e64080-6754-451b-87c9-0e52253f2a9c
+
+	measure 'Gap Líder (p.p.)' = ([Market Share Claro] - [Market Share 2º Lugar]) * 100
+		formatString: +0.0" pontos";-0.0" pontos";0.0" pontos"
+		displayFolder: C - Gap Líder
+		lineageTag: 20331cb0-c9b8-4d26-b677-0352fd687145
+
+		annotation PBI_FormatHint = {"isCustom":true}
+
+	/// População x (1 - market share da Claro). Use como filtro Top 5 no gráfico de barras.
+	measure 'Índice de Oportunidade' = [População Total] * (1 - [Market Share Claro])
+		formatString: #,0
+		displayFolder: D - Oportunidades
+		lineageTag: 00ec3534-2dfc-4ee4-ab4b-62a0c334883f
+
+	/// Cor hexadecimal por operadora, para formatação condicional por valor de campo.
+	measure 'Cor Operadora' = SWITCH(SELECTEDVALUE(Acessos_Banda_Larga_Fixa_2026[Operadora]), "Claro", "#DA291C", "Vivo", "#595959", "TIM", "#A6A6A6", "Oi", "#BFBFBF", "#D9D9D9")
+		displayFolder: E - Formatação
+		lineageTag: 924fede6-243e-4f73-a0ae-d72d96da9ce6
+
+	measure 'Sub Market Share Claro' = VAR _v = ROUND([Var Market Share Claro MoM] * 100, 1) RETURN SWITCH(TRUE(), ISBLANK([Var Market Share Claro MoM]), "Sem dado do mês anterior", _v > 0, "▲ Subiu " & FORMAT(_v, "0.0") & " ponto vs mês anterior", _v < 0, "▼ Caiu " & FORMAT(-_v, "0.0") & " ponto vs mês anterior", "Estável vs mês anterior")
+		displayFolder: F - Subtítulos
+		lineageTag: 734c344b-e7eb-4af3-b4f5-d8839c82b2dd
+
+	measure 'Sub Acessos Claro' = VAR _t = [Total Mercado] RETURN "De " & IF(_t >= 1000000, FORMAT(_t / 1000000, "0.0") & " mi", FORMAT(_t / 1000, "0") & " mil") & " conexões no mercado"
+		displayFolder: F - Subtítulos
+		lineageTag: 79a01a27-caaa-4a21-99de-513f0306c978
+
+	measure 'Sub Gap Líder' = IF([Gap Líder (p.p.)] >= 0, "À frente da " & [Nome 2º Lugar] & ", maior concorrente", "Atrás da " & [Nome 2º Lugar] & ", líder do mercado")
+		displayFolder: F - Subtítulos
+		lineageTag: 5b642b53-8d30-4627-8c05-17a8caac1f8f
+
+	/// Último mês de dados no contexto, para o rodapé do painel.
+	measure 'Mês de Referência' = FORMAT(CALCULATE(MAX(Acessos_Banda_Larga_Fixa_2026[Data]), REMOVEFILTERS(Acessos_Banda_Larga_Fixa_2026[Grupo Econômico], Acessos_Banda_Larga_Fixa_2026[Operadora])), "mm/yyyy")
+		displayFolder: F - Subtítulos
+		lineageTag: f34190cd-2349-473d-8b0d-bd4a9e0176be
+
+	measure 'Sub Penetração' = FORMAT([Penetração] * 100, "0") & " conexões por 100 moradores"
+		lineageTag: 6534cc14-8f78-4d0d-801c-03b52d6495af
+
+	measure 'Var Share desde Jan (p.p.)' = VAR _jan = DATE(YEAR(MAX(dCalendario[Data])), 1, 1) VAR _msJan = CALCULATE([Market Share], REMOVEFILTERS(dCalendario), Acessos_Banda_Larga_Fixa_2026[Data] = _jan) RETURN IF(ISBLANK([Market Share]) || ISBLANK(_msJan), BLANK(), ([Market Share] - _msJan) * 100)
+		formatString: 0.0
+		displayFolder: B - Comparativo MoM
+		lineageTag: a061bdf3-a5e4-44e0-bde4-73e4cbb10c6f
+
+	measure 'Share Claro Mapa' = VAR _uf = SELECTEDVALUE(IBGE_API[UF]) VAR _cidades = _uf IN {"RJ", "SP"} VAR _tipo = SELECTEDVALUE(LocalMapa[Tipo]) RETURN SWITCH(TRUE(), _cidades && _tipo = "Cidade", CALCULATE([Market Share Claro], KEEPFILTERS(TREATAS(VALUES(LocalMapa[Cod_IBGE]), IBGE_API[Cod_IBGE]))), NOT _cidades && _tipo = "Estado", CALCULATE([Market Share Claro], KEEPFILTERS(TREATAS(VALUES(LocalMapa[UF]), IBGE_API[UF]))), BLANK())
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a6f88fb0-a8b8-4e8c-b3ad-0bcaa2ae1355
+
+	measure 'População Mapa' = VAR _uf = SELECTEDVALUE(IBGE_API[UF]) VAR _cidades = _uf IN {"RJ", "SP"} VAR _tipo = SELECTEDVALUE(LocalMapa[Tipo]) RETURN SWITCH(TRUE(), _cidades && _tipo = "Cidade", CALCULATE([População Total], KEEPFILTERS(TREATAS(VALUES(LocalMapa[Cod_IBGE]), IBGE_API[Cod_IBGE]))), NOT _cidades && _tipo = "Estado", CALCULATE([População Total], KEEPFILTERS(TREATAS(VALUES(LocalMapa[UF]), IBGE_API[UF]))), BLANK())
+		formatString: #,0
+		lineageTag: 61c2551b-f44f-4059-9b1e-6f028045435d
+
+	measure 'Cor Barra Share' = IF(SELECTEDVALUE(Acessos_Banda_Larga_Fixa_2026[Operadora]) = "Claro", "#1F6FB2", "#BDBDBD")
+		lineageTag: 5fd68953-122b-4625-9dc7-22fd8b0aaa0f
+
+	column Coluna
+		lineageTag: d2242646-d7ff-4499-b8a0-aa9323ddfbcc
+		isNameInferred
+		sourceColumn: [Coluna]
+
+	partition _Medidas = calculated
+		mode: import
+		source = ROW("Coluna", BLANK())
+

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.15.0/schema.json",
+  "name": "ec4fe44ef86f9545f3ad",
+  "position": {
+    "x": 108.2123832980125,
+    "y": 670.38891116329694,
+    "z": 12000,
+    "height": 50.147202016152129,
+    "width": 1148.1069935276935,
+    "tabOrder": 12000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Fonte:",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "11pt"
+                    }
+                  },
+                  {
+                    "value": " Anatel (acessos de banda larga fixa, 2026) e IBGE (Censo 2022). ",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Market share = acessos da operadora ÷ total de acessos do recorte, no último mês selecionado.",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    }
+                  }
+                ],
+                "horizontalTextAlignment": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

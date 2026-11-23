@@ -1,0 +1,92 @@
+table IBGE_API
+	lineageTag: b8b0c2b5-8a90-4a8c-8858-d788483fa7f7
+
+	column Cod_IBGE
+		dataType: int64
+		formatString: 0
+		lineageTag: b79440b1-1921-4ff7-8b6b-2fa7bad905c9
+		summarizeBy: sum
+		sourceColumn: Cod_IBGE
+
+		annotation SummarizationSetBy = Automatic
+
+	column Municipio
+		dataType: string
+		lineageTag: 336e153c-4956-4f0d-b000-c764b206d678
+		summarizeBy: none
+		sourceColumn: Municipio
+
+		annotation SummarizationSetBy = Automatic
+
+	column Populacao
+		dataType: int64
+		formatString: 0
+		lineageTag: 529bcff8-1a9a-4b63-9cc3-545eaba29a82
+		summarizeBy: sum
+		sourceColumn: Populacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column Localizacao_Mapa
+		dataType: string
+		lineageTag: fcbd5cf0-6168-4d21-864d-8449116eb2b5
+		summarizeBy: none
+		sourceColumn: Localizacao_Mapa
+
+		annotation SummarizationSetBy = Automatic
+
+	column UF
+		dataType: string
+		lineageTag: 5b9b2af2-14c6-473d-bea2-4cc1e11777e4
+		summarizeBy: none
+		sourceColumn: UF
+
+	column Estado_Mapa = SWITCH(IBGE_API[UF], "AC", "Acre", "AL", "Alagoas", "AP", "Amapá", "AM", "Amazonas", "BA", "Bahia", "CE", "Ceará", "DF", "Distrito Federal", "ES", "Espírito Santo", "GO", "Goiás", "MA", "Maranhão", "MT", "Mato Grosso", "MS", "Mato Grosso do Sul", "MG", "Minas Gerais", "PA", "Pará", "PB", "Paraíba", "PR", "Paraná", "PE", "Pernambuco", "PI", "Piauí", "RJ", "Rio de Janeiro", "RN", "Rio Grande do Norte", "RS", "Rio Grande do Sul", "RO", "Rondônia", "RR", "Roraima", "SC", "Santa Catarina", "SP", "São Paulo", "SE", "Sergipe", "TO", "Tocantins", IBGE_API[UF])
+		lineageTag: 242d1ddf-933d-4222-b67f-8a3cea1ab978
+		dataCategory: StateOrProvince
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Local_Drill = ```
+			IF(IBGE_API[UF] IN {"RJ", "SP"}, IBGE_API[Localizacao_Mapa], IBGE_API[Estado_Mapa] & ", Brasil") 
+			```
+		dataType: string
+		lineageTag: 99513318-88a0-41b3-83f5-0f53370e63e9
+		dataCategory: Place
+		summarizeBy: none
+
+	hierarchy 'Estado_Mapa Hierarquia'
+		lineageTag: e6055473-4aba-4eed-a2df-f0efa0e5f931
+
+		level Estado_Mapa
+			lineageTag: 93a8a3a0-df9e-4f17-b898-994d16e58039
+			column: Estado_Mapa
+
+		level Localizacao_Mapa
+			lineageTag: 0790f8f7-182a-4a36-8f8f-4da38107e7e8
+			column: Local_Drill
+
+	partition IBGE_API = m
+		mode: import
+		source =
+				let
+				    Fonte = Json.Document(Web.Contents("https://apisidra.ibge.gov.br/values/t/4714/n6/all/v/93/p/2022")),
+				    Tabela = Table.FromList(Fonte, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    Expandido = Table.ExpandRecordColumn(Tabela, "Column1", {"D1C", "D1N", "V"}, {"Cod_IBGE", "Municipio_UF", "Populacao"}),
+				    RemoveCabecalhoAPI = Table.Skip(Expandido, 1),
+				    SeparaUF = Table.AddColumn(RemoveCabecalhoAPI, "UF", each Text.AfterDelimiter([Municipio_UF], " - ", {0, RelativePosition.FromEnd}), type text),
+				    LimpaNome = Table.TransformColumns(SeparaUF, {{"Municipio_UF", each Text.BeforeDelimiter(_, " - ", {0, RelativePosition.FromEnd}), type text}}),
+				    Renomeado = Table.RenameColumns(LimpaNome, {{"Municipio_UF", "Municipio"}}),
+				    Tipado = Table.TransformColumnTypes(Renomeado, {{"Cod_IBGE", Int64.Type}, {"Municipio", type text}, {"Populacao", Int64.Type}, {"UF", type text}}),
+				    ComLocalizacao = Table.AddColumn(Tipado, "Localizacao_Mapa", each [Municipio] & ", " & [UF] & ", Brasil", type text),
+				    Ordenado = Table.SelectColumns(ComLocalizacao, {"Cod_IBGE", "Municipio", "Populacao", "UF", "Localizacao_Mapa"})
+				in
+				    Ordenado
+
+	changedProperty = Name
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+
