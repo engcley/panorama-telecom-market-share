@@ -1,6 +1,6 @@
 # Panorama Telecom: Market Share e Penetração
 
-Painel de Business Intelligence sobre o mercado brasileiro de **internet fixa (banda larga)**, feito em Power BI no formato de projeto (`.pbip`) e publicado no Microsoft Fabric. Mostra onde a Claro está forte, quanto do mercado ela tem e onde ainda há população sem atendimento.
+Painel de Business Intelligence sobre o mercado brasileiro de **internet fixa (banda larga)**, feito em Power BI no formato de projeto (`.pbip`) e publicado no Microsoft Fabric. Mostra o mercado de banda larga e onde ainda há população sem atendimento.
 
 Relatório publicado no Microsoft Fabric: [COLE_AQUI_O_LINK]
 
